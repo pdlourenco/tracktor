@@ -4,58 +4,77 @@ import { data as currencies } from 'currency-codes';
 import { getCurrencySymbol } from '$lib/helper/format.helper';
 import { z } from 'zod/v4';
 
-const settingsConfigSchema = z.object({
-  dateFormat: z.string(),
-  locale: z.string().min(2),
-  timezone: z.string().min(3),
-  currency: z.string().min(1, 'Currency is required'),
-  unitOfDistance: z.enum(['kilometer', 'mile']),
-  unitOfVolume: z.enum(['liter', 'gallon']),
-  unitOfLpg: z.enum(['liter', 'gallon', 'kilogram', 'pound']).default('liter'),
-  unitOfCng: z.enum(['liter', 'gallon', 'kilogram', 'pound']).default('kilogram'),
-  mileageUnitFormat: z
-    .enum(['distance-per-fuel', 'fuel-per-distance', 'uk-mpg'])
-    .default('distance-per-fuel'),
-  theme: z.string().default('light'),
-  darkVariant: z.string().default('default'),
-  customCss: z.string().optional(),
-  featureFuelLog: z.boolean().default(true),
-  featureMaintenance: z.boolean().default(true),
-  featureCompliance: z.boolean().default(true),
-  featureReminders: z.boolean().default(true),
-  featureOverview: z.boolean().default(true),
-  notificationProcessingEnabled: z.boolean().default(true),
-  notificationProcessingSchedule: z.string().default('0 9 * * *')
-});
+type Messages = typeof import('$lib/paraglide/messages');
 
-export type SettingsConfig = z.infer<typeof settingsConfigSchema>;
+// Message getters are called lazily so that validation errors follow the
+// locale that is active when the form is validated, not when it was built.
+const buildSettingsConfigSchema = (m: Messages) => {
+  const invalidOption = { error: () => m.settings_error_invalid_option() };
+
+  return z.object({
+    dateFormat: z.string(),
+    locale: z.string().min(2),
+    timezone: z.string().min(3),
+    currency: z.string().min(1, { error: () => m.settings_error_currency_required() }),
+    unitOfDistance: z.enum(['kilometer', 'mile'], invalidOption),
+    unitOfVolume: z.enum(['liter', 'gallon'], invalidOption),
+    unitOfLpg: z.enum(['liter', 'gallon', 'kilogram', 'pound'], invalidOption).default('liter'),
+    unitOfCng: z.enum(['liter', 'gallon', 'kilogram', 'pound'], invalidOption).default('kilogram'),
+    mileageUnitFormat: z
+      .enum(['distance-per-fuel', 'fuel-per-distance', 'uk-mpg'], invalidOption)
+      .default('distance-per-fuel'),
+    theme: z.string().default('light'),
+    darkVariant: z.string().default('default'),
+    customCss: z.string().optional(),
+    featureFuelLog: z.boolean().default(true),
+    featureMaintenance: z.boolean().default(true),
+    featureCompliance: z.boolean().default(true),
+    featureReminders: z.boolean().default(true),
+    featureOverview: z.boolean().default(true),
+    notificationProcessingEnabled: z.boolean().default(true),
+    notificationProcessingSchedule: z.string().default('0 9 * * *')
+  });
+};
+
+export type SettingsConfig = z.infer<ReturnType<typeof buildSettingsConfigSchema>>;
 
 export function createSettingsConfigSchema(
+  m: Messages,
   isValidFormat: (value: string) => { valid: boolean },
   isValidTimezone: (value: string) => boolean,
   options: { includeNotificationProcessingSchedule: true }
 ): ReturnType<ReturnType<typeof z.object>['extend']>;
 
 export function createSettingsConfigSchema(
+  m: Messages,
   isValidFormat: (value: string) => { valid: boolean },
   isValidTimezone: (value: string) => boolean,
   options?: { includeNotificationProcessingSchedule?: boolean }
 ): ReturnType<typeof z.object>;
 
 export function createSettingsConfigSchema(
+  m: Messages,
   isValidFormat: (value: string) => { valid: boolean },
   isValidTimezone: (value: string) => boolean,
   options: { includeNotificationProcessingSchedule?: boolean } = {}
 ) {
-  const schema = settingsConfigSchema
+  const schema = buildSettingsConfigSchema(m)
     .extend({
-      dateFormat: z.string().refine((fmt) => isValidFormat(fmt).valid, 'Format not valid'),
-      timezone: z.string().min(3).refine(isValidTimezone, 'Invalid timzone value.')
+      dateFormat: z.string().refine((fmt) => isValidFormat(fmt).valid, {
+        error: () => m.settings_error_date_format_invalid()
+      }),
+      timezone: z
+        .string()
+        .min(3)
+        .refine(isValidTimezone, { error: () => m.settings_error_timezone_invalid() })
     })
-    .refine((obj) => {
-      if (obj.mileageUnitFormat !== 'uk-mpg') return true;
-      return obj.unitOfDistance === 'mile' && obj.unitOfVolume === 'liter';
-    }, 'UK MPG calculation requires unit of distance to be miles and unit of volume to be litres.');
+    .refine(
+      (obj) => {
+        if (obj.mileageUnitFormat !== 'uk-mpg') return true;
+        return obj.unitOfDistance === 'mile' && obj.unitOfVolume === 'liter';
+      },
+      { error: () => m.settings_error_uk_mpg_requirements() }
+    );
 
   if (options.includeNotificationProcessingSchedule) {
     return schema;

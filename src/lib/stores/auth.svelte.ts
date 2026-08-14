@@ -3,6 +3,7 @@ import { env } from '$lib/config/env';
 import { apiClient } from '../helper/api.helper';
 import type { ApiResponse } from '../response';
 import { toast } from 'svelte-sonner';
+import * as m from '$lib/paraglide/messages';
 
 interface User {
   id: string;
@@ -60,7 +61,7 @@ class AuthStore {
       if (res.success && res.data) {
         this.user = res.data.user;
         this.isLoggedIn = true;
-        toast.success('Login successful');
+        toast.success(m.auth_toast_login_success());
         return true;
       }
       return false;
@@ -68,7 +69,9 @@ class AuthStore {
       this.user = null;
       this.isLoggedIn = false;
       console.error('Login error:', err);
-      toast.error(`Login failed: ${err.response?.data?.message || err.message}`);
+      toast.error(
+        `${m.auth_toast_login_error_prefix()}${err.response?.data?.message || err.message}`
+      );
       return false;
     }
   };
@@ -81,14 +84,16 @@ class AuthStore {
       });
 
       if (res.success) {
-        toast.success('User created successfully. Please login.');
+        toast.success(m.auth_toast_register_success());
         this.hasUsers = true;
         return true;
       }
       return false;
     } catch (err: any) {
       console.error('Registration error:', err);
-      toast.error(`Registration failed: ${err.response?.data?.message || err.message}`);
+      toast.error(
+        `${m.auth_toast_register_error_prefix()}${err.response?.data?.message || err.message}`
+      );
       return false;
     }
   };
@@ -115,13 +120,13 @@ class AuthStore {
 
       if (res.success && res.data) {
         this.user = { ...this.user!, username: res.data.username };
-        toast.success('Profile updated successfully');
+        toast.success(m.profile_toast_updated());
         return true;
       }
       return false;
     } catch (err: any) {
       console.error('Profile update error:', err);
-      toast.error(`Update failed: ${err.response?.data?.message || err.message}`);
+      toast.error(`${m.profile_toast_error_prefix()}${err.response?.data?.message || err.message}`);
       return false;
     }
   };
