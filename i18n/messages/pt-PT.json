@@ -809,5 +809,13 @@
   "reports_stat_compliance_costs": "Custos de conformidade",
   "compliance_col_document": "Conformidade",
   "compliance_col_status": "Estado",
-  "compliance_col_days_left": "Dias restantes"
+  "compliance_col_days_left": "Dias restantes",
+  "auth_toast_login_success": "Sessão iniciada com sucesso",
+  "auth_toast_login_error_prefix": "Falha ao iniciar sessão: ",
+  "auth_toast_register_success": "Conta criada com sucesso. Inicie sessão.",
+  "auth_toast_register_error_prefix": "Falha ao criar a conta: ",
+  "profile_toast_updated": "Perfil atualizado com sucesso",
+  "profile_toast_error_prefix": "Falha ao atualizar: ",
+  "settings_error_invalid_option": "Opção inválida",
+  "settings_error_uk_mpg_requirements": "O cálculo em MPG britânico requer a distância em milhas e o volume em litros."
 }
