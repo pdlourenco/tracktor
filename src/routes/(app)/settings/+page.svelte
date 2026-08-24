@@ -39,7 +39,7 @@
   let processing = $state(false);
   let notificationProcessingEnabled = $state(true);
 
-  const configSchema = createSettingsConfigSchema(isValidFormat, isValidTimezone, {
+  const configSchema = createSettingsConfigSchema(m, isValidFormat, isValidTimezone, {
     includeNotificationProcessingSchedule: true
   });
 

@@ -809,5 +809,13 @@
   "reports_stat_compliance_costs": "Compliance Costs",
   "compliance_col_document": "Compliance",
   "compliance_col_status": "Status",
-  "compliance_col_days_left": "Days Left"
+  "compliance_col_days_left": "Days Left",
+  "auth_toast_login_success": "Login successful",
+  "auth_toast_login_error_prefix": "Login failed: ",
+  "auth_toast_register_success": "User created successfully. Please login.",
+  "auth_toast_register_error_prefix": "Registration failed: ",
+  "profile_toast_updated": "Profile updated successfully",
+  "profile_toast_error_prefix": "Update failed: ",
+  "settings_error_invalid_option": "Invalid option selected",
+  "settings_error_uk_mpg_requirements": "UK MPG calculation requires unit of distance to be miles and unit of volume to be litres."
 }
