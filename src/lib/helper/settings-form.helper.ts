@@ -108,8 +108,8 @@ export function createSettingsOptions(
     gasUnitOptions: [
       { value: 'liter', label: m.common_litre() },
       { value: 'gallon', label: m.common_gallon() },
-      { value: 'kilogram', label: 'Kilogram (kg)' },
-      { value: 'pound', label: 'Pound (lb)' }
+      { value: 'kilogram', label: m.common_kilogram_unit() },
+      { value: 'pound', label: m.common_pound_unit() }
     ],
     mileageUnitFormatOptions: [
       {
